@@ -1,0 +1,49 @@
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# Build
+target/
+*.class
+*.jar
+*.war
+*.rar
+
+# Maven
+.m2/
+dependency-reduced-pom.xml
+
+# Gradle
+.gradle/
+build/
+
+# Spring Boot
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+application-local.properties
+
+# Node (if applicable)
+node_modules/
+npm-debug.log
+
+# Database
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.bak
