@@ -41,9 +41,30 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestParam String refreshToken) {
-        String accessToken = authService.refresh(refreshToken);
-        return ResponseEntity.ok().body(
-                Map.of("accessToken", accessToken, "expiresIn", 900));
+        try {
+            System.out.println("Received refresh token request");
+            if (refreshToken == null || refreshToken.isEmpty()) {
+                System.err.println("Refresh token is null or empty");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Refresh token is required"));
+            }
+            
+            String accessToken = authService.refresh(refreshToken);
+            if (accessToken == null || accessToken.isEmpty()) {
+                System.err.println("Failed to generate new access token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Failed to refresh token"));
+            }
+            
+            System.out.println("Successfully refreshed token");
+            return ResponseEntity.ok().body(
+                    Map.of("accessToken", accessToken, "expiresIn", 900));
+        } catch (Exception e) {
+            System.err.println("Error during token refresh: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Token refresh failed: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/logout")

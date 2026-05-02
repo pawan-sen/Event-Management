@@ -21,4 +21,9 @@ public interface AuthRepo extends JpaRepository<AuthEntity, UUID> {
 	@Transactional
 	@Query("DELETE FROM AuthEntity a WHERE a.tokenHash = :tokenHash")
 	void deleteByTokenHash(String tokenHash);
+
+	@Modifying
+	@Transactional
+	@Query("DELETE FROM AuthEntity a WHERE a.userId = :userId")
+	void deleteByUserId(UUID userId);
 }

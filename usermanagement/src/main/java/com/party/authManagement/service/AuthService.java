@@ -68,6 +68,8 @@ public class AuthService {
             String refreshToken = jwtService.generateRefreshToken(userId.toString());
             System.out.println("Generated refresh token for user: " + username);
 
+            authRepository.deleteByUserId(UUID.fromString(userId));
+
             String hash = passwordEncoder.encode(refreshToken);
             AuthEntity entity = new AuthEntity();
             entity.setId(UUID.randomUUID());

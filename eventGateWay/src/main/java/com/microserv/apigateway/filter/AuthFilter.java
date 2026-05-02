@@ -73,6 +73,7 @@ public class AuthFilter implements GlobalFilter {
             String refreshTokenHeader) {
         return callAuthServiceToRefresh(refreshTokenHeader)
                 .flatMap(newToken -> {
+                    newToken = newToken.strip();
                     System.out.println("Received new token from auth service: " + newToken);
                     
                     if (newToken != null && !newToken.isEmpty() && !newToken.equals("null")) {
@@ -119,13 +120,28 @@ public class AuthFilter implements GlobalFilter {
     }
 
     private Mono<String> callAuthServiceToRefresh(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            System.err.println("Refresh token is null or empty");
+            return Mono.error(new RuntimeException("Refresh token is invalid"));
+        }
+        
+        System.out.println("Attempting to refresh token with auth service...");
         return webClientBuilder.build()
                 .post()
                 .uri("http://usermanagement/auth/refresh?refreshToken=" + refreshToken)
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(response -> (String) response.get("accessToken"))
-                .onErrorReturn("");
+                .doOnNext(response -> System.out.println("Refresh response received: " + response))
+                .map(response -> {
+                    Object accessTokenObj = response.get("accessToken");
+                    if (accessTokenObj == null) {
+                        System.err.println("Access token not found in response: " + response);
+                        throw new RuntimeException("Access token not in response");
+                    }
+                    return (String) accessTokenObj;
+                })
+                .doOnError(error -> System.err.println("Token refresh failed: " + error.getMessage()))
+                .timeout(java.time.Duration.ofSeconds(15));
     }
 
     private Claims validateToken(String token) throws JwtException {
