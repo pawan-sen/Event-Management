@@ -1,8 +1,15 @@
 package com.party.eventmanagement.controller;
 
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.ai.converter.MapOutputConverter;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,17 +21,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.party.eventmanagement.entity.EventAIReq;
+import com.party.eventmanagement.entity.EventAIRes;
 import com.party.eventmanagement.entity.EventDoc;
 import com.party.eventmanagement.entity.EventMenu;
 import com.party.eventmanagement.entity.EventReq;
 import com.party.eventmanagement.service.EventService;
 
+
 @RestController
 @RequestMapping("/events")
 public class EventController {
-    
-	@Autowired
-	private EventService service;
+
+    private final EventService service;
+    private final ChatClient chatClient;
+
+    public EventController(EventService service, ChatClient chatClient) {
+        this.service = service;
+        this.chatClient = chatClient;
+    }
 	
 	// For test
     @GetMapping
@@ -109,5 +124,33 @@ public class EventController {
     		return ResponseEntity.ok("Event " + eventId + " deleted");
     	}
         return ResponseEntity.internalServerError().body("Error in deleting Event " + eventId);
+    }
+    
+    @PostMapping("/eventSuggestion")
+    public ResponseEntity<List<EventAIRes>> generateEventDescription(@RequestBody EventAIReq req) {
+        try {
+
+            String promptMessage = """
+                Generate a list of top 5 best venues for {Event} in or around {Location} for {NumberOfGuests} guests between {EventFromDate} and {EventToDate} within rupees {Budget}.
+
+                It should in {format}.
+                """;
+
+                System.out.println("Received AI request: " + req);
+
+                BeanOutputConverter<List<EventAIRes>> mapOutputConverter = new BeanOutputConverter<>(
+                    new ParameterizedTypeReference<List<EventAIRes>>() {}
+                );
+                String format = mapOutputConverter.getFormat();
+
+                PromptTemplate promptTemplate = new PromptTemplate(promptMessage);
+                Prompt prompt = promptTemplate.create(Map.of("Event", req.getEventFor(), "Location", req.getEventLocation(), "NumberOfGuests", String.valueOf(req.getNumberOfGuests()), "EventFromDate", req.getEventFromDate(), "EventToDate", req.getEventToDate(), "Budget", String.valueOf(req.getBudget()), "format", format));
+                
+                ChatResponse chatResponse = chatClient.prompt(prompt).call().chatResponse();
+
+            return ResponseEntity.ok(mapOutputConverter.convert(chatResponse.getResult().getOutput().getText()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }

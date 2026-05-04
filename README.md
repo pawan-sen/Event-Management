@@ -290,6 +290,98 @@ jwt.expiration=900000         # 15 minutes
 jwt.refreshExpiration=86400000 # 24 hours
 ```
 
+## 🤖 OpenAI Integration (Event Management Service)
+
+### Setup
+
+The Event Management service integrates with OpenAI to provide AI-powered event suggestions via the `/eventmanagement/events/eventSuggestion` endpoint.
+
+**1. Add OpenAI API Key to `.env` file**
+
+Create `.env` in the `eventmanagement/` directory:
+```properties
+OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+```
+
+**2. Configure VS Code Launch Configuration**
+
+The `.vscode/launch.json` is already configured to load the `.env` file automatically:
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "eventmanagement",
+            "type": "java",
+            "request": "launch",
+            "mainClass": "com.party.eventmanagement.EventmanagementApplication",
+            "projectName": "eventmanagement",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/eventmanagement/.env"
+        }
+    ]
+}
+```
+
+This configuration ensures that environment variables from `.env` are loaded when debugging via VS Code.
+
+**3. Start Event Management Service**
+
+Use VS Code Debug:
+- Open Run and Debug (Ctrl+Shift+D)
+- Select **eventmanagement** from the dropdown
+- Click the green play button
+
+Or run from terminal:
+```bash
+cd eventmanagement
+mvn spring-boot:run
+```
+
+### API Usage
+
+**Request**:
+```bash
+POST /eventmanagement/events/eventSuggestion
+Content-Type: application/json
+
+{
+    "eventFor": "Birthday",
+    "eventFromDate": "2026-12-20",
+    "eventToDate": "2026-12-20",
+    "eventLocation": "New Delhi",
+    "numberOfGuests": 10
+}
+```
+
+**Response**:
+```json
+[
+    {
+        "venueName": "The Grand Hotel",
+        "capacity": 500,
+        "pricePerPlate": 2500,
+        "amenities": ["Parking", "WiFi", "AC", "Bar Service"],
+        "rating": 4.8
+    },
+    ...
+]
+```
+
+### Dependencies
+
+The service uses Spring AI 1.1.5 with OpenAI starter:
+```xml
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-model-openai</artifactId>
+</dependency>
+```
+
+**Note**: The `.env` file is in `.gitignore` to prevent API key exposure in version control.
+
 ## 📊 Database Schema
 
 ### PostgreSQL - User Management (event_userdb)
