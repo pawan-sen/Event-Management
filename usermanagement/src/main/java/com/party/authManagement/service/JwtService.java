@@ -33,9 +33,10 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateRefreshToken(String username) {
+    public String generateRefreshToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

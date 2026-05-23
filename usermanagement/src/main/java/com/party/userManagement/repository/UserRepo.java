@@ -1,5 +1,6 @@
-package com.party.userManagement.db;
+package com.party.userManagement.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,8 +36,8 @@ public interface UserRepo extends JpaRepository<UserDetails, UUID> {
         int updateUserPassword(@Param("newPassword") String newPassword, @Param("oldPassword") String oldPassword,
                         @Param("username") String username);
 
-        @Query("SELECT a.userId FROM UserDetails a WHERE a.userName = :username AND a.password = :password AND a.isUserActive = true")
-        String isPasswordCorrect(@Param("username") String username, @Param("password") String password);
+        @Query("SELECT a.userId, a.role FROM UserDetails a WHERE a.userName = :username AND a.password = :password AND a.isUserActive = true")
+        List<Object[]> isPasswordCorrect(@Param("username") String username, @Param("password") String password);
 
         UUID findUserIdByEmail(String email);
 }

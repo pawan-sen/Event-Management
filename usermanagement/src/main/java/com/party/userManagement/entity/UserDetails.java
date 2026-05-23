@@ -3,6 +3,8 @@ package com.party.userManagement.entity;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.party.userManagement.dto.UserRequest;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,6 +46,9 @@ public class UserDetails {
 	private boolean isUserActive;
 	private LocalDate createDate;
 
+	// Default role is USER, can be extended to support multiple roles in the future
+	private String role = "USER";
+
 	public UserDetails(UserRequest userRequest) {
 		userId = UUID.randomUUID();
 
@@ -53,7 +58,6 @@ public class UserDetails {
 		this.email = userRequest.getEmail();
 		this.mobile = userRequest.getMobile();
 		this.password = userRequest.getPassword();
-
 		this.isUserActive = true;
 		this.setCreateDate(LocalDate.now());
 	}

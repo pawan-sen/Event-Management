@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.party.userManagement.entity.PasswordUserRequest;
-import com.party.userManagement.entity.ProfileUserRequest;
-import com.party.userManagement.entity.UserRequest;
+import com.party.userManagement.dto.PasswordUserRequest;
+import com.party.userManagement.dto.ProfileUserRequest;
+import com.party.userManagement.dto.UserRequest;
 import com.party.userManagement.service.UserService;
 
 @RestController

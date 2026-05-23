@@ -1,6 +1,8 @@
-package com.party.eventmanagement.entity;
+package com.party.eventmanagement.dto;
 
 import java.time.LocalDate;
+
+import com.party.eventmanagement.entity.EventDoc;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,13 +24,13 @@ public class EventMenu {
 	boolean isOnGoing;
 	
 	public EventMenu(EventDoc doc) {
-		this.eventId = doc.eventId;
-		this.eventName = doc.eventName;
-		this.description = doc.description;
-		this.location = doc.location;
-		this.fromDate = doc.fromDate;
+		this.eventId = doc.getEventId();
+		this.eventName = doc.getEventName();
+		this.description = doc.getDescription();
+		this.location = doc.getLocation();
+		this.fromDate = doc.getFromDate();
 		
 		LocalDate today = LocalDate.now();
-		isOnGoing = today.isAfter(doc.fromDate) || today.equals(doc.fromDate);
+		isOnGoing = today.isAfter(doc.getFromDate()) || today.equals(doc.getFromDate());
 	}
 }

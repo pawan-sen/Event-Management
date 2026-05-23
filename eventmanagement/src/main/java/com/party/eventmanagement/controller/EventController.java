@@ -8,7 +8,6 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
-import org.springframework.ai.converter.MapOutputConverter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +20,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.party.eventmanagement.entity.EventAIReq;
-import com.party.eventmanagement.entity.EventAIRes;
+import com.party.eventmanagement.dto.EventAIReq;
+import com.party.eventmanagement.dto.EventAIRes;
+import com.party.eventmanagement.dto.EventMenu;
+import com.party.eventmanagement.dto.EventReq;
 import com.party.eventmanagement.entity.EventDoc;
-import com.party.eventmanagement.entity.EventMenu;
-import com.party.eventmanagement.entity.EventReq;
 import com.party.eventmanagement.service.EventService;
 
 

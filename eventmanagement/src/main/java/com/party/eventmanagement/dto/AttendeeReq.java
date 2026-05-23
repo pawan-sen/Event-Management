@@ -1,6 +1,4 @@
-package com.party.eventmanagement.entity;
-
-import java.util.List;
+package com.party.eventmanagement.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +11,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class AttendeesReq {
-	private List<AttendeeReq> attendeeReqs; 
+public class AttendeeReq {
+	private String userId;
+	private String userName;
+	private String rsvpStatus;
+	private String userComments;
 }

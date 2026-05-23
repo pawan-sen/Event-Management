@@ -1,4 +1,4 @@
-package com.party.eventmanagement.service.config;
+package com.party.eventmanagement.config;
 
 import java.util.List;
 

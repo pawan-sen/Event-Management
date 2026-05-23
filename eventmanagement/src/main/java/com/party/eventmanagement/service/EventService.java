@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.party.eventmanagement.db.EventRepo;
+import com.party.eventmanagement.dto.EventMenu;
+import com.party.eventmanagement.dto.EventReq;
 import com.party.eventmanagement.entity.EventDoc;
-import com.party.eventmanagement.entity.EventMenu;
-import com.party.eventmanagement.entity.EventReq;
+import com.party.eventmanagement.repository.EventRepo;
 
 import lombok.RequiredArgsConstructor;
 import reactor.util.retry.Retry;

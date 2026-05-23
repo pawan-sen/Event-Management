@@ -1,5 +1,8 @@
 package com.party.userManagement.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -7,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.party.userManagement.db.UserRepo;
-import com.party.userManagement.entity.PasswordUserRequest;
-import com.party.userManagement.entity.ProfileUserRequest;
+import com.party.userManagement.dto.PasswordUserRequest;
+import com.party.userManagement.dto.ProfileUserRequest;
+import com.party.userManagement.dto.UserRequest;
 import com.party.userManagement.entity.UserDetails;
-import com.party.userManagement.entity.UserRequest;
+import com.party.userManagement.repository.UserRepo;
 
 @Service
 public class UserService {
@@ -52,15 +55,25 @@ public class UserService {
 		}
 	}
 
-	public String isPasswordCorrect(String password, String username) {
-		String ret = "";
+	public Map<String, String> isPasswordCorrect(String password, String username) {
+		Map<String, String> ret = new HashMap<>();
+		
 		try {
-			ret = repo.isPasswordCorrect(username, password);
+			ret.put("result", "Success");
+
+			List<Object[]> resultList = repo.isPasswordCorrect(username, password);
+			if (!resultList.isEmpty()) {
+				Object[] row = resultList.get(0);
+				ret.put("userId", row[0].toString());
+				ret.put("role", row[1].toString());
+			} else {
+				ret.put("result", "Incorrect Information");
+			}
 
 			System.out.println("Password check result for user " + username + ": " + ret);
 
 		} catch (Exception e) {
-			ret = "Error in checking password";
+			ret.put("result", "Error in checking Information");
 		}
 
 		return ret;

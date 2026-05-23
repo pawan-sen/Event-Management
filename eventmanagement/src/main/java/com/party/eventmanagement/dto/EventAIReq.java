@@ -1,4 +1,4 @@
-package com.party.eventmanagement.entity;
+package com.party.eventmanagement.dto;
 
 import java.util.Date;
 

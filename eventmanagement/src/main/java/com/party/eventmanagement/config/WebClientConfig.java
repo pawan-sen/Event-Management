@@ -1,4 +1,4 @@
-package com.microserv.apigateway.Config;
+package com.party.eventmanagement.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

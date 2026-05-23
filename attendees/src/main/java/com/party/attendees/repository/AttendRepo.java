@@ -1,4 +1,4 @@
-package com.party.attendees.db;
+package com.party.attendees.repository;
 
 import java.util.List;
 

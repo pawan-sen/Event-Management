@@ -1,4 +1,4 @@
-package com.party.eventmanagement.db;
+package com.party.eventmanagement.repository;
 
 import java.time.LocalDate;
 import java.util.List;

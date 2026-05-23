@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.party.eventmanagement.dto.EventReq;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,13 +36,13 @@ public class EventDoc {
 	public EventDoc(EventReq req) {
 		this.eventId = UUID.randomUUID().toString();
 		
-		this.eventName = req.eventName;
-		this.description = req.description;
-		this.location = req.location;
-		this.fromDate = req.fromDate;
-		this.toDate = req.toDate;
-		this.userId = req.userId;
-		this.userName = req.userName;
-		this.isPrivateInvite = req.isPrivateInvite;
+		this.eventName = req.getEventName();
+		this.description = req.getDescription();
+		this.location = req.getLocation();
+		this.fromDate = req.getFromDate();
+		this.toDate = req.getToDate();
+		this.userId = req.getUserId();
+		this.userName = req.getUserName();
+		this.isPrivateInvite = req.isPrivateInvite();
 	}
 }

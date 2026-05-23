@@ -2,6 +2,8 @@ package com.party.attendees.entities;
 
 import java.util.UUID;
 
+import com.party.attendees.dto.AttendeeReq;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

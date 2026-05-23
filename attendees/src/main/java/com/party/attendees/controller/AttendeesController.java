@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.party.attendees.entities.AttendeeReq;
+import com.party.attendees.dto.AttendeeReq;
+import com.party.attendees.dto.AttendeesReq;
 import com.party.attendees.entities.Attendees;
-import com.party.attendees.entities.AttendeesReq;
 import com.party.attendees.service.AttendService;
 
 @RestController

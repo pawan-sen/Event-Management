@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.party.authManagement.db.AuthRepo;
 import com.party.authManagement.dto.LoginResponse;
 import com.party.authManagement.entity.AuthEntity;
+import com.party.authManagement.repository.AuthRepo;
 
 import io.jsonwebtoken.JwtException;
 
@@ -41,19 +41,30 @@ public class AuthService {
 
         System.out.println("Authenticating user: " + username + " with provided password. " + password);
 
-        String userId = webClientBuilder.build()
+        Map<String, String> response = webClientBuilder.build()
                 .post()
                 .uri("http://usermanagement/user/checkPassword/{username}", username)
                 .bodyValue(password)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(Map.class)
                 .timeout(Duration.ofSeconds(5))
                 .block();
 
-        System.out.println("Received userId from user service: " + userId);
+        System.out.println("Received response from user service for user " + username + ": " + response);
 
-        if (userId == null || userId.isEmpty()
-                || userId.equalsIgnoreCase("Incorrect Information")) {
+        String userId, role;
+        if (response != null && response.get("result") != null && response.get("result").equals("Success")) {
+            userId = response.get("userId");
+            role = response.get("role");
+            
+        } else {
+            System.err.println("No response received from user service for user " + username);
+            return null;
+            
+        }
+        
+
+        if (response == null || userId == null || userId.isEmpty() || role == null || role.isEmpty()) {
             System.out.println("Authentication failed for user: " + username + ". Invalid credentials provided.");
 
             return null;
@@ -62,10 +73,10 @@ public class AuthService {
         try {
             System.out.println("Before generating tokens for user: " + username + ". User ID: " + userId);
 
-            String accessToken = jwtService.generateAccessToken(userId.toString(), "USER");
+            String accessToken = jwtService.generateAccessToken(userId.toString(), role);
             System.out.println("Generated access token for user: " + username);
 
-            String refreshToken = jwtService.generateRefreshToken(userId.toString());
+            String refreshToken = jwtService.generateRefreshToken(userId.toString(), role);
             System.out.println("Generated refresh token for user: " + username);
 
             authRepository.deleteByUserId(UUID.fromString(userId));

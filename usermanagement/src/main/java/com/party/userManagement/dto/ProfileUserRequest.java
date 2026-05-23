@@ -1,4 +1,4 @@
-package com.party.userManagement.entity;
+package com.party.userManagement.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,12 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
-	private String userName;
+public class ProfileUserRequest {
 	private String firstName;
 	private String lastName;
 	private String email;
 	private String mobile;
-
-	private String password;
 }

@@ -1,4 +1,4 @@
-package com.party.attendees.entities;
+package com.party.attendees.dto;
 
 import java.util.List;
 
@@ -8,11 +8,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
-public class AttendeesReq {
-	private List<AttendeeReq> attendeeReqs; 
+public class AttendeesStats {
+	List<String> attending;
+	List<String> notAttending;
+	List<String> notSure;
 }

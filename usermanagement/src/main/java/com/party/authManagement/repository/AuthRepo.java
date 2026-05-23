@@ -1,4 +1,4 @@
-package com.party.authManagement.db;
+package com.party.authManagement.repository;
 
 import java.util.Optional;
 import java.util.UUID;
