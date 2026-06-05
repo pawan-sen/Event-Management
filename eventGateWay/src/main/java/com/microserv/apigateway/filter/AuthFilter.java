@@ -51,10 +51,17 @@ public class AuthFilter implements GlobalFilter {
         return validateTokenAndAddHeader(exchange, accessToken, refreshTokenHeader)
                 .flatMap(modifiedExchange -> chain.filter(modifiedExchange))
                 .onErrorResume(e -> {
+                    if (e.getMessage().contains("Admin access required")) {
+                        return onError(exchange, "Admin access required", HttpStatus.FORBIDDEN);
+                    }
                     System.err.println("Token validation error: " + e.getMessage());
                     e.printStackTrace();
                     return onError(exchange, "Invalid or expired token: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
                 });
+    }
+
+    private boolean isAdminRoute(String path) {
+        return path.contains("/actuator");
     }
 
     private Mono<ServerWebExchange> validateTokenAndAddHeader(ServerWebExchange exchange, 
@@ -62,6 +69,17 @@ public class AuthFilter implements GlobalFilter {
         try {
             Claims claims = validateToken(accessToken);
             String userId = claims.getSubject();
+
+            // Extract role from claims (adjust based on your JWT structure)
+            String role = claims.get("role", String.class); // or claims.get("roles", String.class)
+            
+            // Check if admin route requires admin role
+            if (isAdminRoute(exchange.getRequest().getURI().getPath())) {
+                if (!"ADMIN".equalsIgnoreCase(role)) {
+                    return Mono.error(new RuntimeException("Admin access required"));
+                }
+            }
+
             return Mono.just(addUserIdHeader(exchange, userId));
         } catch (ExpiredJwtException e) {
             System.err.println("Token expired: " + e.getMessage());
@@ -80,6 +98,17 @@ public class AuthFilter implements GlobalFilter {
                         try {
                             exchange.getResponse().getHeaders().add("X-New-Token", newToken);
                             Claims claims = validateToken(newToken);
+
+                            // Extract role from claims (adjust based on your JWT structure)
+                            String role = claims.get("role", String.class); // or claims.get("roles", String.class)
+                            
+                            // Check if admin route requires admin role
+                            if (isAdminRoute(exchange.getRequest().getURI().getPath())) {
+                                if (!"ADMIN".equalsIgnoreCase(role)) {
+                                    return Mono.error(new RuntimeException("Admin access required"));
+                                }
+                            }
+
                             return Mono.just(addUserIdHeader(exchange, claims.getSubject()));
                         } catch (Exception e) {
                             return Mono.error(new RuntimeException("Invalid refreshed token"));
