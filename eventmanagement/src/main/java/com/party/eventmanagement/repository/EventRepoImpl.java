@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,8 +15,12 @@ import com.party.eventmanagement.entity.EventDoc;
 
 @Repository
 public class EventRepoImpl implements EventRepoCustom {
-	@Autowired
+	
     private MongoTemplate mongoTemplate;
+
+    public EventRepoImpl(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
 	@Override
     public List<String> findAllPublicEventsIdWithFutureOrCurrentToDay(String userId, LocalDate curDate) {

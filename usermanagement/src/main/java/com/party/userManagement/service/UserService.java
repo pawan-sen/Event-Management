@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +19,14 @@ import com.party.userManagement.repository.UserRepo;
 @Service
 public class UserService {
 
-	@Autowired
-	private UserRepo repo;
+	private final UserRepo repo;
+	private final PasswordEncoder passwordEncoder;
+
+
+	public UserService(UserRepo repo, PasswordEncoder passwordEncoder) {
+		this.repo = repo;
+		this.passwordEncoder = passwordEncoder;
+	}
 
 	public UserDetails getUserInfo(UUID uuid) {
 		return Optional.of(repo.findById(uuid)).orElse(null).get();
@@ -29,6 +35,8 @@ public class UserService {
 	@Transactional
 	public boolean addUser(UserRequest request) {
 		try {
+			request.setPassword(passwordEncoder.encode(request.getPassword()));
+
 			UserDetails userDetails = new UserDetails(request);
 			repo.save(userDetails);
 
@@ -61,11 +69,16 @@ public class UserService {
 		try {
 			ret.put("result", "Success");
 
-			List<Object[]> resultList = repo.isPasswordCorrect(username, password);
+			List<Object[]> resultList = repo.isPasswordCorrect(username);
 			if (!resultList.isEmpty()) {
 				Object[] row = resultList.get(0);
-				ret.put("userId", row[0].toString());
-				ret.put("role", row[1].toString());
+
+				if (passwordEncoder.matches(password, row[2].toString())) {
+					ret.put("userId", row[0].toString());
+					ret.put("role", row[1].toString());
+				} else {
+					ret.put("result", "Incorrect Information");
+				}
 			} else {
 				ret.put("result", "Incorrect Information");
 			}
@@ -82,6 +95,7 @@ public class UserService {
 	@Transactional
 	public boolean editUserPassWord(PasswordUserRequest request, String username) {
 		try {
+			request.setNewPassword(passwordEncoder.encode(request.getNewPassword()));
 			int ret = repo.updateUserPassword(request.getNewPassword(), request.getOldPassword(), username);
 
 			if (ret > 0) {

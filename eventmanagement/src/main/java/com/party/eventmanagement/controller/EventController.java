@@ -130,7 +130,7 @@ public class EventController {
         try {
 
             String promptMessage = """
-                Generate a list of top 5 best venues for {Event} in or around {Location} for {NumberOfGuests} guests between {EventFromDate} and {EventToDate} within rupees {Budget}.
+                Generate a list of top 5 best venue names for {Event} in or around {Location} for {NumberOfGuests} guests between {EventFromDate} and {EventToDate} within rupees {Budget}.
 
                 It should in {format}.
                 """;

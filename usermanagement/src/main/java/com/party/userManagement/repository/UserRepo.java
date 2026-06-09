@@ -36,8 +36,8 @@ public interface UserRepo extends JpaRepository<UserDetails, UUID> {
         int updateUserPassword(@Param("newPassword") String newPassword, @Param("oldPassword") String oldPassword,
                         @Param("username") String username);
 
-        @Query("SELECT a.userId, a.role FROM UserDetails a WHERE a.userName = :username AND a.password = :password AND a.isUserActive = true")
-        List<Object[]> isPasswordCorrect(@Param("username") String username, @Param("password") String password);
+        @Query("SELECT a.userId, a.role, a.password FROM UserDetails a WHERE a.userName = :username AND a.isUserActive = true")
+        List<Object[]> isPasswordCorrect(@Param("username") String username);
 
         UUID findUserIdByEmail(String email);
 }
