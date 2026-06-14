@@ -5,11 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "com.party.userManagement", "com.party.authManagement" })
 @EnableJpaRepositories(basePackages = { "com.party.userManagement", "com.party.authManagement" })
 @EntityScan(basePackages = { "com.party.userManagement", "com.party.authManagement" })
+@EnableFeignClients(basePackages = "com.party.authManagement")
 public class UserManagementApplication {
 
 	public static void main(String[] args) {

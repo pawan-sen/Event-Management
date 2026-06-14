@@ -220,21 +220,29 @@ PUT    /usermanagement/user              - Update user profile
 
 ### Event Management
 ```
-GET    /eventmanagement/events           - Get all events
-POST   /eventmanagement/events           - Create event
-GET    /eventmanagement/events/{id}      - Get event by ID
-PUT    /eventmanagement/events/{id}      - Update event
-DELETE /eventmanagement/events/{id}      - Delete event
-GET    /eventmanagement/events/user/{userId}/not-attended
-GET    /eventmanagement/events/user/{userId}/attending
+GET    /eventmanagement/events                      - Get all events
+GET    /eventmanagement/events/event/{eventId}      - Get event by ID
+GET    /eventmanagement/events/publicEvent/{userId} - Get public events not attended by user
+GET    /eventmanagement/events/getAttendingEvents/{userId} - Get events user is attending
+GET    /eventmanagement/events/userCreatedEvents/{userId} - Get events created by user
+GET    /eventmanagement/events/getAttendedPastEvents/{userId} - Get past events attended by user
+GET    /eventmanagement/events/pastEvent/{userId}    - Get past events created by user
+POST   /eventmanagement/events                     - Create event
+PUT    /eventmanagement/events                     - Update event
+DELETE /eventmanagement/events/{eventId}           - Delete event
+POST   /eventmanagement/events/eventSuggestion     - Generate AI event suggestions
 ```
 
 ### Attendees
 ```
-POST   /attendees/register               - Register for event
-GET    /attendees/getAllEventsNotAttended/{userId}
-GET    /attendees/getAllAttendingEvents/{userId}
-PUT    /attendees/updateRsvp             - Update RSVP status
+POST   /attendees/getAllEventsNotAttended/{userId} - Get event IDs user is not attending
+POST   /attendees/getAllAttendingEvents/{userId}   - Get event IDs user is attending
+POST   /attendees/registerAttendees/{eventId}      - Register multiple attendees for event
+POST   /attendees/registerForEvent/{eventId}       - Register a single attendee for event
+PATCH  /attendees/rsvp/{eventId}                   - Update RSVP status for attendee
+GET    /attendees/{eventId}                        - Get attendees for event
+DELETE /attendees/{eventId}/{userId}               - Remove a user from event attendees
+DELETE /attendees/event/{eventId}                  - Remove all attendees for event
 ```
 
 ## 🔐 Authentication Flow
@@ -253,12 +261,13 @@ PUT    /attendees/updateRsvp             - Update RSVP status
 
 ## 🔄 Inter-Service Communication
 
-Services communicate via **Spring WebClient** (non-blocking):
+Services communicate via **Spring Cloud OpenFeign** and **Spring WebClient** for internal service-to-service calls.
 
-- **Event Management** calls **Attendees Service** for attendance data
-- Example: `http://attendees/attendees/getAllEventsNotAttended/{userId}`
-- Service-to-service calls use service names (resolved via Eureka)
-- Load balancing handled by Eureka client-side discovery
+- **Event Management** talks to **Attendees Service** directly using Feign, not through the API Gateway
+- Feign client uses Eureka service discovery to resolve `attendees` service instances
+- Example Feign endpoint: `/attendees/registerAttendees/{eventId}`
+- API Gateway token validation is only for external client requests; internal service calls are trusted within the microservice mesh
+- Load balancing and discovery are handled by Eureka client-side discovery
 
 ## 🛠️ Configuration
 

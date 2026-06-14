@@ -1,6 +1,5 @@
 package com.party.eventmanagement.service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,18 +7,16 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.party.eventmanagement.dto.EventMenu;
 import com.party.eventmanagement.dto.EventReq;
 import com.party.eventmanagement.entity.EventDoc;
+import com.party.eventmanagement.external.AttendeesClient;
 import com.party.eventmanagement.repository.EventRepo;
 
 import lombok.RequiredArgsConstructor;
-import reactor.util.retry.Retry;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +26,8 @@ public class EventService {
 	private static final Logger logger = LoggerFactory.getLogger(EventService.class);
 	
 	private final EventRepo repo;
-	
-	private final WebClient.Builder webClientBuilder;
+
+	private final AttendeesClient attendeesClient;
 
 	
 	public List<EventDoc> getEvents() {
@@ -55,14 +52,7 @@ public class EventService {
     	
     	
     	// Remove the events that user is attending
-    	List<String> publicEventsNotAttending = webClientBuilder.build()
-				.post()
-				.uri("http://attendees/attendees/getAllEventsNotAttended/{userId}", userId)
-				.bodyValue(publicEvents)
-				.retrieve()
-				.bodyToMono(new ParameterizedTypeReference<List<String>>() {})
-				.timeout(Duration.ofSeconds(5))
-				.block();
+    	List<String> publicEventsNotAttending = attendeesClient.getAllEventsNotAttended(userId, publicEvents);
     	
     	logger.info("In getPublicEvents user is not attending = " + publicEventsNotAttending);
     	
@@ -81,13 +71,7 @@ public class EventService {
     	logger.info("In getAttendingEvents for user => " + userId);
     	
     	// Remove the events that user is attending
-    	List<String> allEventIdsBeingAttended = webClientBuilder.build()
-				.post()
-				.uri("http://attendees/attendees/getAllAttendingEvents/{userId}", userId)
-				.retrieve()
-				.bodyToMono(new ParameterizedTypeReference<List<String>>() {})
-				.timeout(Duration.ofSeconds(5))
-				.block();
+    	List<String> allEventIdsBeingAttended = attendeesClient.getAllAttendingEvents(userId);
     	
     	logger.info("In getAttendingEvents allEventIdsBeingAttended by user => " + allEventIdsBeingAttended);
     	
@@ -111,13 +95,7 @@ public class EventService {
     }
     
     public List<EventMenu> getAttendedPastEvents(String userId) {
-    	List<String> allEventIdsBeingAttended = webClientBuilder.build()
-				.post()
-				.uri("http://attendees/attendees/getAllAttendingEvents/{userId}", userId)
-				.retrieve()
-				.bodyToMono(new ParameterizedTypeReference<List<String>>() {})
-				.timeout(Duration.ofSeconds(5))
-				.block();
+    	List<String> allEventIdsBeingAttended = attendeesClient.getAllAttendingEvents(userId);
     	
     	logger.info("In getAttendedPastEvents allEventIdsBeingAttended by user => " + allEventIdsBeingAttended);
     	
@@ -135,28 +113,16 @@ public class EventService {
     public boolean createEvent(EventReq req) {
     	boolean ret = true;
         try {
-        	
-//        	webClientBuilder
-        	
 			EventDoc newEvent = new EventDoc(req);
 			
 			String isAttendeesAdded = "Success all attendees are registered";
 			
 			if(req.getAttendeesReq()!=null) {
-				System.out.println("In aattendeesReq => " + req.getAttendeesReq());
-				isAttendeesAdded = webClientBuilder.build()
-						.post()
-						.uri("http://attendees/attendees/registerAttendees/{eventId}", newEvent.getEventId())
-						.bodyValue(req.getAttendeesReq())
-						.retrieve()
-						.bodyToMono(String.class)
-						.timeout(Duration.ofSeconds(15))
-						.block();
+				logger.info("In aattendeesReq => " + req.getAttendeesReq());
+				isAttendeesAdded = attendeesClient.registerAttendees(newEvent.getEventId(), req.getAttendeesReq());
 			}
 			
 			logger.info("createEvent response from registerAttendees => " + isAttendeesAdded);
-
-			System.out.println("createEvent response from registerAttendees => " + isAttendeesAdded);
 			
         	if("Success all attendees are registered".equalsIgnoreCase(isAttendeesAdded)) {
         		try {
@@ -166,14 +132,7 @@ public class EventService {
     				logger.error("Error in createEvent insert" + e.getStackTrace());
     				
     				if(req.getAttendeesReq()!=null) {
-    					String result = webClientBuilder.build()
-							.delete()
-							.uri("http://attendees/attendees/event/{eventId}", newEvent.getEventId())
-							.retrieve()
-							.bodyToMono(String.class)
-							.timeout(Duration.ofSeconds(5))
-							.retryWhen(Retry.fixedDelay(5, Duration.ofSeconds(2)))
-							.block();
+    					String result = attendeesClient.unregisterAttendees(newEvent.getEventId());
     					
     					logger.info("createEvent error delete attendees => " + result);
     				}

@@ -1,6 +1,5 @@
 package com.party.authManagement.service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -10,11 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.party.authManagement.dto.LoginResponse;
 import com.party.authManagement.entity.AuthEntity;
+import com.party.authManagement.external.UserClient;
 import com.party.authManagement.repository.AuthRepo;
 
 import io.jsonwebtoken.JwtException;
@@ -27,28 +26,21 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    private final WebClient.Builder webClientBuilder;
+    private final UserClient userClient;
 
     public AuthService(AuthRepo authRepository, JwtService jwtService, PasswordEncoder passwordEncoder,
-            WebClient.Builder webClientBuilder) {
+            UserClient userClient) {
         this.authRepository = authRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
-        this.webClientBuilder = webClientBuilder;
+        this.userClient = userClient;
     }
 
     public LoginResponse authenticateUser(String username, String password) {
 
         System.out.println("Authenticating user: " + username + " with provided password. " + password);
 
-        Map<String, String> response = webClientBuilder.build()
-                .post()
-                .uri("http://usermanagement/user/checkPassword/{username}", username)
-                .bodyValue(password)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .timeout(Duration.ofSeconds(5))
-                .block();
+        Map<String, String> response = userClient.checkPassword(username, password);
 
         System.out.println("Received response from user service for user " + username + ": " + response);
 
