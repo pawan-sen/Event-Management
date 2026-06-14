@@ -515,4 +515,13 @@ Created as a distributed event management system showcasing modern microservices
 
 ---
 
+## Feature under work or underconsideration
+
+- Check for loggers 
+- Add test cases 
+- Apply Circuit breaker
+- Get swaggers 
+- Apply global error handling
+- Rate Limiter
+
 **Happy Coding! 🚀**
